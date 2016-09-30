@@ -97,7 +97,7 @@ void byteutil_writeUTF(uint8_t** buffer, const char* stringData, uint16_t len)
 CONTROL_PACKET_TYPE processControlPacketType(uint8_t pktByte, int* flags)
 {
     CONTROL_PACKET_TYPE result;
-    result = PACKET_TYPE_BYTE(pktByte);
+    result = (CONTROL_PACKET_TYPE)PACKET_TYPE_BYTE(pktByte);
     if (flags != NULL)
     {
         *flags = FLAG_VALUE_BYTE(pktByte);
@@ -165,7 +165,7 @@ static int addListItemsToSubscribePacket(BUFFER_HANDLE ctrlPacket, SUBSCRIBE_PAY
                 uint8_t* iterator = BUFFER_u_char(ctrlPacket);
                 iterator += offsetLen;
                 byteutil_writeUTF(&iterator, payloadList[index].subscribeTopic, (uint16_t)topicLen);
-                *iterator = payloadList[index].qosReturn;
+                *iterator = (uint8_t)payloadList[index].qosReturn;
             }
         }
     }
@@ -527,7 +527,7 @@ static void completePacketData(MQTTCODEC_INSTANCE* codecData)
 MQTTCODEC_HANDLE mqtt_codec_create(ON_PACKET_COMPLETE_CALLBACK packetComplete, void* callbackCtx)
 {
     MQTTCODEC_HANDLE result;
-    result = malloc(sizeof(MQTTCODEC_INSTANCE) );
+    result = (MQTTCODEC_INSTANCE*)malloc(sizeof(MQTTCODEC_INSTANCE) );
     /* Codes_SRS_MQTT_CODEC_07_001: [If a failure is encountered then mqtt_codec_create shall return NULL.] */
     if (result != NULL)
     {

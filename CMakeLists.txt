@@ -123,6 +123,10 @@ set(source_c_files
 ./src/mqtt_message.c
 )
 
+if( MSVC AND ${MSVC_VERSION} LESS 1600 )
+  set_source_files_properties(src/mqtt_client.c src/mqtt_codec.c PROPERTIES LANGUAGE CXX)
+endif()
+
 #these are the C headers
 set(source_h_files
 ./inc/azure_umqtt_c/mqtt_client.h

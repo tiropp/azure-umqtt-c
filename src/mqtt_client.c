@@ -165,7 +165,7 @@ static void logOutgoingingMsgTrace(MQTT_CLIENT* clientData, const uint8_t* data,
         char tmBuffer[TIME_MAX_BUFFER];
         getLogTime(tmBuffer, TIME_MAX_BUFFER);
 
-        LOG(LOG_TRACE, 0, "-> %s %s: ", tmBuffer, retrievePacketType((unsigned char)data[0]));
+        LOG(LOG_TRACE, 0, "-> %s %s: ", tmBuffer, retrievePacketType((CONTROL_PACKET_TYPE)data[0]));
         for (size_t index = 0; index < length; index++)
         {
             LOG(LOG_TRACE, 0, (char*)FORMAT_HEX_CHAR, data[index]);
@@ -367,7 +367,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                         /*Codes_SRS_MQTT_CLIENT_07_028: [If the actionResult parameter is of type CONNECT_ACK then the msgInfo value shall be a CONNECT_ACK structure.]*/
                         CONNECT_ACK connack = { 0 };
                         connack.isSessionPresent = (byteutil_readByte(&iterator) == 0x1) ? true : false;
-                        connack.returnCode = byteutil_readByte(&iterator);
+                        connack.returnCode = (CONNECT_RETURN_CODE)byteutil_readByte(&iterator);
 
                         mqttData->fnOperationCallback(mqttData, MQTT_CLIENT_ON_CONNACK, (void*)&connack, mqttData->ctx);
 
@@ -533,7 +533,7 @@ static void recvCompleteCallback(void* context, CONTROL_PACKET_TYPE packet, int 
                         {
                             while (remainLen > 0)
                             {
-                                suback.qosReturn[suback.qosCount++] = byteutil_readByte(&iterator);
+                                suback.qosReturn[suback.qosCount++] = (QOS_VALUE)byteutil_readByte(&iterator);
                                 remainLen--;
                             }
                             mqttData->fnOperationCallback(mqttData, MQTT_CLIENT_ON_SUBSCRIBE_ACK, (void*)&suback, mqttData->ctx);
@@ -584,7 +584,7 @@ MQTT_CLIENT_HANDLE mqtt_client_init(ON_MQTT_MESSAGE_RECV_CALLBACK msgRecv, ON_MQ
     }
     else
     {
-        result = malloc(sizeof(MQTT_CLIENT));
+        result = (MQTT_CLIENT*)malloc(sizeof(MQTT_CLIENT));
         if (result == NULL)
         {
             /*Codes_SRS_MQTT_CLIENT_07_002: [If any failure is encountered then mqttclient_init shall return NULL.]*/
