@@ -23,6 +23,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --error-exitcode=1 --track-origins=yes")
 endif()
 
+if (MSVC AND MSVC_VERSION LESS 1600)
+  set(MSVC_LESS_1600 1)
+  add_definitions(-DMSVC_LESS_1600)
+endif()
+
 include (CTest)
 
 if(MSVC)
@@ -127,6 +132,13 @@ set(source_c_files
 ./src/mqtt_message.c
 )
 
+if( MSVC_LESS_1600 )
+  set_source_files_properties(src/mqtt_client.c src/mqtt_codec.c PROPERTIES
+    LANGUAGE CXX
+    COMPILE_DEFINITIONS __STDC_FORMAT_MACROS=1
+    )  
+endif()
+
 #these are the C headers
 set(source_h_files
 ./inc/azure_umqtt_c/mqtt_client.h
@@ -139,6 +151,9 @@ set(source_h_files
 set(MQTT_INC_FOLDER ${CMAKE_CURRENT_LIST_DIR}/inc CACHE INTERNAL "this is what needs to be included if using sharedLib lib" FORCE)
 set(MQTT_SRC_FOLDER ${CMAKE_CURRENT_LIST_DIR}/src CACHE INTERNAL "this is what needs to be included when doing include sources" FORCE)
 include_directories(${MQTT_INC_FOLDER} ${SHARED_UTIL_INC_FOLDER})
+if (MSVC_LESS_1600)
+  include_directories(${SHARED_UTIL_INC_FOLDER}/azure_c_shared_utility/msvc1500)
+endif()
 
 get_directory_property(hasParent PARENT_DIRECTORY)
 if(hasParent)
